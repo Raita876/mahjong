@@ -102,7 +102,7 @@ def is_reasonable_tiles_num(tiles):
     tiles_in_char = handler.get_tiles_in_char()
     c = collections.Counter(tiles_in_char)
 
-    if c[max(c)] < 5:
+    if max(c.values()) < 5:
         return True
     else:
         return False
