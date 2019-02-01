@@ -38,49 +38,61 @@ class TilesHandler:
         return tiles_in_char
 
 
-def create_tiles_tenpai():
-    tiles = mentsu() + mentsu() + mentsu() + mentsu() + janto()
+def create_tiles_tenpai(tile_type=None):
+    tiles = mentsu(tile_type) + mentsu(tile_type) + mentsu(tile_type) + mentsu(tile_type) + janto(tile_type)
 
     tiles = random.sample(tiles, 13)
 
     if is_reasonable_tiles_num(tiles):
         return tiles
     else:
-        return create_tiles_tenpai()
+        return create_tiles_tenpai(tile_type)
 
 
-def mentsu():
+def mentsu(tile_type=None):
     mentsu_type_choices = ["shuntsu", "kotsu"]
     mentsu_type = random.choice(mentsu_type_choices)
 
     if mentsu_type == "shuntsu":
-        return shuntsu()
+        return shuntsu(tile_type)
     elif mentsu_type == "kotsu":
-        return kotsu()
+        return kotsu(tile_type)
 
 
-def shuntsu():
-    tiles_all = get_tiles_for_shuntsu()
+def shuntsu(tile_type=None):
+    if tile_type is None:
+        tiles_all = get_tiles_for_shuntsu()
+    elif tile_type == "m" or tile_type == "p" or tile_type == "s":
+        tiles_all = get_tiles_specified_type_for_shuntsu(tile_type)
+
     selected_tile = random.choice(tiles_all)
 
     return [Tile(selected_tile.tile_type, selected_tile.num + i) for i in range(3)]
 
 
-def kotsu():
-    tiles_all = get_tiles_all()
+def kotsu(tile_type=None):
+    if tile_type is None:
+        tiles_all = get_tiles_all()
+    elif tile_type == "m" or tile_type == "p" or tile_type == "s":
+        tiles_all = get_tiles_specified_type(tile_type)
+
     selected_tile = random.choice(tiles_all)
 
     return [selected_tile for i in range(3)]
 
 
-def janto():
-    tiles_all = get_tiles_all()
+def janto(tile_type=None):
+    if tile_type is None:
+        tiles_all = get_tiles_all()
+    elif tile_type == "m" or tile_type == "p" or tile_type == "s":
+        tiles_all = get_tiles_specified_type(tile_type)
+
     selected_tile = random.choice(tiles_all)
 
     return [selected_tile for i in range(2)]
 
 
-def get_tiles_all():
+def get_tiles_all(tile_type=None):
     tiles_m = [Tile("m", i) for i in range(1, 10)]
     tiles_p = [Tile("p", i) for i in range(1, 10)]
     tiles_s = [Tile("s", i) for i in range(1, 10)]
@@ -89,7 +101,7 @@ def get_tiles_all():
     return tiles_m + tiles_p + tiles_s + tiles_z
 
 
-def get_tiles_for_shuntsu():
+def get_tiles_for_shuntsu(tile_type=None):
     tiles_m = [Tile("m", i) for i in range(1, 8)]
     tiles_p = [Tile("p", i) for i in range(1, 8)]
     tiles_s = [Tile("s", i) for i in range(1, 8)]
@@ -106,3 +118,25 @@ def is_reasonable_tiles_num(tiles):
         return True
     else:
         return False
+
+
+def create_tiles_randomly(tile_type=None):
+    default_tile_type = "s" if tile_type is None else tile_type
+
+    tiles = get_tiles_specified_type(default_tile_type) * 4
+
+    selected_tiles = random.sample(tiles, 13)
+
+    return selected_tiles
+
+
+def get_tiles_specified_type(tile_type):
+    tiles = [Tile(tile_type, i) for i in range(1, 10)]
+
+    return tiles
+
+
+def get_tiles_specified_type_for_shuntsu(tile_type):
+    tiles = [Tile(tile_type, i) for i in range(1, 8)]
+
+    return tiles
