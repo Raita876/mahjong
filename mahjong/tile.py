@@ -3,9 +3,15 @@ import random
 
 import yaml
 
+from mahjong.exceptions import ArgumentError
+
 
 class Tile:
-    def __init__(self, tile_type, num):
+    def __init__(self, tile_type: str, num: int):
+        self.__is_appropriate_type(tile_type)
+
+        self.__is_appropriate_num(num, tile_type)
+
         self.tile_type = tile_type
         self.num = num
         self.char = self.__set_char(tile_type, num)
@@ -20,10 +26,34 @@ class Tile:
 
         return char_dict[key]
 
+    def __is_appropriate_type(self, tile_type):
+        if tile_type != "m" and tile_type != "p" and tile_type != "s" and tile_type != "z":
+            raise ArgumentError("Tile-Type is not appropriate. must be 'm' or 'p' or 's' or 'z'.")
+
+    def __is_appropriate_num(self, num, tile_type):
+        if tile_type == "z":
+            min_num = 1
+            max_num = 7
+        else:
+            min_num = 1
+            max_num = 9
+
+        if num < min_num or num > max_num:
+            raise ArgumentError("Tile-Num is not appropriate.")
+
 
 class TilesHandler:
     def __init__(self, tiles):
-        self.tiles = self.__sort_tiles(tiles)
+        self.tiles = self.__init_tiles(tiles)
+
+    def __init_tiles(self, tiles):
+        if type(tiles) is not list:
+            raise ArgumentError("Argument must be a List.")
+
+        if len(tiles) == 0:
+            raise ArgumentError("Tiles is empty.")
+
+        return self.__sort_tiles(tiles)
 
     def __sort_tiles(self, tiles):
         tiles.sort(key=lambda tile: (tile.tile_type, tile.num))
@@ -64,6 +94,8 @@ def shuntsu(tile_type=None):
         tiles_all = get_tiles_for_shuntsu()
     elif tile_type == "m" or tile_type == "p" or tile_type == "s":
         tiles_all = get_tiles_specified_type_for_shuntsu(tile_type)
+    else:
+        raise ArgumentError("Tile-Type is not appropriate. must be 'm' or 'p' or 's'.")
 
     selected_tile = random.choice(tiles_all)
 
@@ -73,8 +105,10 @@ def shuntsu(tile_type=None):
 def kotsu(tile_type=None):
     if tile_type is None:
         tiles_all = get_tiles_all()
-    elif tile_type == "m" or tile_type == "p" or tile_type == "s":
+    elif tile_type == "m" or tile_type == "p" or tile_type == "s" or tile_type == "z":
         tiles_all = get_tiles_specified_type(tile_type)
+    else:
+        raise ArgumentError("Tile-Type is not appropriate. must be 'm' or 'p' or 's' or 'z'.")
 
     selected_tile = random.choice(tiles_all)
 
@@ -84,8 +118,10 @@ def kotsu(tile_type=None):
 def janto(tile_type=None):
     if tile_type is None:
         tiles_all = get_tiles_all()
-    elif tile_type == "m" or tile_type == "p" or tile_type == "s":
+    elif tile_type == "m" or tile_type == "p" or tile_type == "s" or tile_type == "z":
         tiles_all = get_tiles_specified_type(tile_type)
+    else:
+        raise ArgumentError("Tile-Type is not appropriate. must be 'm' or 'p' or 's' or 'z'.")
 
     selected_tile = random.choice(tiles_all)
 
