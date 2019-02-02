@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 import random
 
+import pytest
 import yaml
 
-from mahjong.tile import Tile, TilesHandler
+from mahjong.exceptions import ArgumentError
+from mahjong.tile import Tile, TilesHandler, create_tiles_tenpai
 
 
 def load_tiles_yaml():
@@ -35,6 +37,20 @@ def test_handler():
     assert handler.get_tiles_in_char() == "三四五⑤⑥⑦２３７８９南南"
 
 
+def test_handler_miss_args():
+    tiles = "This is not list."
+
+    with pytest.raises(ArgumentError):
+        TilesHandler(tiles)
+
+
+def test_handler_list_empty():
+    tiles = []
+
+    with pytest.raises(ArgumentError):
+        TilesHandler(tiles)
+
+
 def test_handler_sort():
     tiles_yaml = load_tiles_yaml()
 
@@ -45,3 +61,18 @@ def test_handler_sort():
     handler = TilesHandler(tiles)
 
     assert handler.get_tiles_in_char() == "三四五⑤⑥⑦２３７８９南南"
+
+
+def test_create_tiles_tenpai_miss_args():
+    with pytest.raises(ArgumentError):
+        create_tiles_tenpai("d")
+
+
+def test_tile_miss_type():
+    with pytest.raises(ArgumentError):
+        Tile("d", 7)
+
+
+def test_tile_miss_num():
+    with pytest.raises(ArgumentError):
+        Tile("s", 10)
