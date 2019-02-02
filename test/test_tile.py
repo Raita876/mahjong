@@ -37,6 +37,12 @@ def test_handler():
     assert handler.get_tiles_in_char() == "三四五⑤⑥⑦２３７８９南南"
 
 
+def test_handler_create_tenpai():
+    handler = TilesHandler()
+
+    assert len(handler.get_tiles_in_char()) == 13
+
+
 def test_handler_miss_args():
     tiles = "This is not list."
 

@@ -43,8 +43,11 @@ class Tile:
 
 
 class TilesHandler:
-    def __init__(self, tiles):
-        self.tiles = self.__init_tiles(tiles)
+    def __init__(self, tiles=None):
+        if tiles is None:
+            self.tiles = create_tiles_tenpai()
+        else:
+            self.tiles = self.__init_tiles(tiles)
 
     def __init_tiles(self, tiles):
         if type(tiles) is not list:
