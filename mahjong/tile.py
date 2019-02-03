@@ -29,6 +29,9 @@ class Tile:
             return NotImplemented
         return (self.tile_type, self.num) == (other.tile_type, other.num)
 
+    def __hash__(self):
+        return hash(self.char)
+
     def __set_char(self, tile_type, num):
         char_dict = self.__get_char_yaml()["char"]
 
@@ -96,24 +99,45 @@ class TilesHandler:
 
     def identify_target_tiles(self):
         target_tiles = []
-        include_type = self.__include_type()
 
-        all_types_of_tile = get_tiles_all(tile_type=include_type)
+        around_tiles = self.__around_tiles()
 
-        for tile in all_types_of_tile:
+        for tile in around_tiles:
             # print(tile.char)
+            if self.__is_fifth_tile(tile):
+                continue
 
             check_tiles = self.__sort_tiles(self.tiles + [tile])
 
-            if self.is_completed_tiles(check_tiles):
+            if self.__is_completed_tiles(check_tiles):
                 target_tiles.append(tile)
 
-        return target_tiles
+        return self.__sort_tiles(target_tiles)
 
-    def __include_type(self):
-        return list(set([tile.tile_type for tile in self.tiles]))
+    def __is_fifth_tile(self, tile):
+        if self.tiles.count(tile) >= 4:
+            return True
+        else:
+            return False
 
-    def is_completed_tiles(self, tiles):
+    def __around_tiles(self):
+        unique_tiles = list(set(self.tiles))
+        around_tiles = []
+
+        for tile in unique_tiles:
+            around_tiles.append(tile)
+
+            if tile.tile_type == "z":
+                continue
+
+            if tile.num - 1 >= 1:
+                around_tiles.append(Tile(tile=(tile.tile_type, tile.num - 1)))
+            if tile.num + 1 <= 9:
+                around_tiles.append(Tile(tile=(tile.tile_type, tile.num + 1)))
+
+        return list(set(around_tiles))
+
+    def __is_completed_tiles(self, tiles):
         tiles_in_char = list([t.char for t in tiles])
 
         for tile in tiles:
@@ -125,13 +149,13 @@ class TilesHandler:
             else:
                 continue
 
-            target_tiles_in_char = self.remove_kotsu(target_tiles_in_char)
+            target_tiles_in_char = self.__remove_kotsu(target_tiles_in_char)
             if len(target_tiles_in_char) == 0:
                 return True
 
             # print(target_tiles_in_char)
 
-            target_tiles_in_char = self.remove_shuntsu(target_tiles_in_char)
+            target_tiles_in_char = self.__remove_shuntsu(target_tiles_in_char)
             if len(target_tiles_in_char) == 0:
                 return True
 
@@ -139,7 +163,7 @@ class TilesHandler:
 
         return False
 
-    def remove_kotsu(self, tiles_in_char):
+    def __remove_kotsu(self, tiles_in_char):
         kotsu_tiles = [items[0] for items in collections.Counter(tiles_in_char).items() if items[1] >= 3]
 
         for delete_tile in kotsu_tiles:
@@ -148,7 +172,7 @@ class TilesHandler:
 
         return tiles_in_char
 
-    def remove_shuntsu(self, tiles_in_char):
+    def __remove_shuntsu(self, tiles_in_char):
         target_tiles_in_char = copy.deepcopy(tiles_in_char)
 
         while (True):
@@ -174,15 +198,6 @@ class TilesHandler:
                 break
 
         return target_tiles_in_char
-
-    def is_shunstu(self, tiles):
-        types = [t.tile_type for t in tiles]
-        nums = [t.num for t in tiles]
-
-        if len(list(set(types))) == 1 and nums[0] + 1 == nums[1] and nums[0] + 2 == nums[2]:
-            return True
-        else:
-            return False
 
 
 def create_tiles_tenpai(tile_type=None):
