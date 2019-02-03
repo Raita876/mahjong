@@ -73,6 +73,8 @@ class TilesHandler:
     def __init__(self, tiles=None):
         if tiles is None:
             self.tiles = create_tiles_tenpai()
+        elif type(tiles) is str:
+            self.tiles = self.__init_tiles(self.__to_list_tiles_str(tiles))
         else:
             self.tiles = self.__init_tiles(tiles)
 
@@ -84,6 +86,9 @@ class TilesHandler:
             raise ArgumentError("Tiles is empty.")
 
         return self.__sort_tiles(tiles)
+
+    def __to_list_tiles_str(self, tiles_str):
+        return [Tile(tile=char) for char in list(tiles_str)]
 
     def __sort_tiles(self, tiles):
         tiles.sort(key=lambda tile: (tile.tile_type, tile.num))
