@@ -1,4 +1,5 @@
 import collections
+import copy
 import random
 
 import yaml
@@ -7,30 +8,53 @@ from mahjong.exceptions import ArgumentError
 
 
 class Tile:
-    def __init__(self, tile_type: str, num: int):
-        self.__is_appropriate_type(tile_type)
+    def __init__(self, tile=None):
+        if type(tile) is tuple:
+            tile_tuple = tile
+        elif type(tile) is str:
+            tile_tuple = self.__to_tile_tuple(tile)
+        else:
+            raise ArgumentError("Args is tuple or str")
 
-        self.__is_appropriate_num(num, tile_type)
+        self.__is_appropriate_type(tile_tuple[0])
 
-        self.tile_type = tile_type
-        self.num = num
-        self.char = self.__set_char(tile_type, num)
+        self.__is_appropriate_num(tile_tuple[0], tile_tuple[1])
+
+        self.tile_type = tile_tuple[0]
+        self.num = tile_tuple[1]
+        self.char = self.__set_char(tile_tuple[0], tile_tuple[1])
+
+    def __eq__(self, other):
+        if not isinstance(other, Tile):
+            return NotImplemented
+        return (self.tile_type, self.num) == (other.tile_type, other.num)
 
     def __set_char(self, tile_type, num):
-        yaml_path = "./mahjong/config/char.yml"
-
-        f = open(yaml_path, "r")
-        char_dict = yaml.load(f)["char"]
+        char_dict = self.__get_char_yaml()["char"]
 
         key = str(num) + tile_type
 
         return char_dict[key]
 
+    def __to_tile_tuple(self, tile_in_char):
+        tile_dict = self.__get_tile_num_yaml()[tile_in_char]
+        return tile_dict["type"], tile_dict["num"]
+
+    def __get_char_yaml(self):
+        yaml_path = "./mahjong/config/char.yml"
+        f = open(yaml_path, "r")
+        return yaml.load(f)
+
+    def __get_tile_num_yaml(self):
+        yaml_path = "./mahjong/config/type_num.yml"
+        f = open(yaml_path, "r")
+        return yaml.load(f)
+
     def __is_appropriate_type(self, tile_type):
         if tile_type != "m" and tile_type != "p" and tile_type != "s" and tile_type != "z":
             raise ArgumentError("Tile-Type is not appropriate. must be 'm' or 'p' or 's' or 'z'.")
 
-    def __is_appropriate_num(self, num, tile_type):
+    def __is_appropriate_num(self, tile_type, num):
         if tile_type == "z":
             min_num = 1
             max_num = 7
@@ -70,6 +94,96 @@ class TilesHandler:
 
         return tiles_in_char
 
+    def identify_target_tiles(self):
+        target_tiles = []
+        include_type = self.__include_type()
+
+        all_types_of_tile = get_tiles_all(tile_type=include_type)
+
+        for tile in all_types_of_tile:
+            # print(tile.char)
+
+            check_tiles = self.__sort_tiles(self.tiles + [tile])
+
+            if self.is_completed_tiles(check_tiles):
+                target_tiles.append(tile)
+
+        return target_tiles
+
+    def __include_type(self):
+        return list(set([tile.tile_type for tile in self.tiles]))
+
+    def is_completed_tiles(self, tiles):
+        tiles_in_char = list([t.char for t in tiles])
+
+        for tile in tiles:
+            target_tiles_in_char = copy.deepcopy(tiles_in_char)
+
+            if tiles_in_char.count(tile.char) >= 2:
+                for i in range(2):
+                    target_tiles_in_char.remove(tile.char)
+            else:
+                continue
+
+            target_tiles_in_char = self.remove_kotsu(target_tiles_in_char)
+            if len(target_tiles_in_char) == 0:
+                return True
+
+            # print(target_tiles_in_char)
+
+            target_tiles_in_char = self.remove_shuntsu(target_tiles_in_char)
+            if len(target_tiles_in_char) == 0:
+                return True
+
+            # print(target_tiles_in_char)
+
+        return False
+
+    def remove_kotsu(self, tiles_in_char):
+        kotsu_tiles = [items[0] for items in collections.Counter(tiles_in_char).items() if items[1] >= 3]
+
+        for delete_tile in kotsu_tiles:
+            for i in range(3):
+                tiles_in_char.remove(delete_tile)
+
+        return tiles_in_char
+
+    def remove_shuntsu(self, tiles_in_char):
+        target_tiles_in_char = copy.deepcopy(tiles_in_char)
+
+        while (True):
+            tile = Tile(tile=target_tiles_in_char[0])
+            if tile.num > 7 or tile.tile_type == "z":
+                break
+
+            shuntsu_tiles_in_char = [
+                tile.char,
+                Tile(tile=(tile.tile_type, tile.num + 1)).char,
+                Tile(tile=(tile.tile_type, tile.num + 2)).char
+            ]
+
+            if shuntsu_tiles_in_char[0] in target_tiles_in_char and shuntsu_tiles_in_char[1] in target_tiles_in_char and \
+                    shuntsu_tiles_in_char[2] in target_tiles_in_char:
+                target_tiles_in_char.remove(shuntsu_tiles_in_char[0])
+                target_tiles_in_char.remove(shuntsu_tiles_in_char[1])
+                target_tiles_in_char.remove(shuntsu_tiles_in_char[2])
+            else:
+                break
+
+            if len(target_tiles_in_char) == 0:
+                break
+
+        return target_tiles_in_char
+
+    def is_shunstu(self, tiles):
+        types = [t.tile_type for t in tiles]
+        nums = [t.num for t in tiles]
+
+        if len(list(set(types))) == 1 and nums[0] + 1 == nums[1] and nums[0] + 2 == nums[2]:
+            return True
+        else:
+            return False
+
 
 def create_tiles_tenpai(tile_type=None):
     tiles = mentsu(tile_type) + mentsu(tile_type) + mentsu(tile_type) + mentsu(tile_type) + janto(tile_type)
@@ -102,7 +216,7 @@ def shuntsu(tile_type=None):
 
     selected_tile = random.choice(tiles_all)
 
-    return [Tile(selected_tile.tile_type, selected_tile.num + i) for i in range(3)]
+    return [Tile(tile=(selected_tile.tile_type, selected_tile.num + i)) for i in range(3)]
 
 
 def kotsu(tile_type=None):
@@ -132,18 +246,36 @@ def janto(tile_type=None):
 
 
 def get_tiles_all(tile_type=None):
-    tiles_m = [Tile("m", i) for i in range(1, 10)]
-    tiles_p = [Tile("p", i) for i in range(1, 10)]
-    tiles_s = [Tile("s", i) for i in range(1, 10)]
-    tiles_z = [Tile("z", i) for i in range(1, 8)]
+    if tile_type is None:
+        tile_type = ["m", "p", "s", "z"]
+
+    if "m" in tile_type:
+        tiles_m = [Tile(tile=("m", i)) for i in range(1, 10)]
+    else:
+        tiles_m = []
+
+    if "p" in tile_type:
+        tiles_p = [Tile(tile=("p", i)) for i in range(1, 10)]
+    else:
+        tiles_p = []
+
+    if "s" in tile_type:
+        tiles_s = [Tile(tile=("s", i)) for i in range(1, 10)]
+    else:
+        tiles_s = []
+
+    if "z" in tile_type:
+        tiles_z = [Tile(tile=("z", i)) for i in range(1, 8)]
+    else:
+        tiles_z = []
 
     return tiles_m + tiles_p + tiles_s + tiles_z
 
 
-def get_tiles_for_shuntsu(tile_type=None):
-    tiles_m = [Tile("m", i) for i in range(1, 8)]
-    tiles_p = [Tile("p", i) for i in range(1, 8)]
-    tiles_s = [Tile("s", i) for i in range(1, 8)]
+def get_tiles_for_shuntsu():
+    tiles_m = [Tile(tile=("m", i)) for i in range(1, 8)]
+    tiles_p = [Tile(tile=("p", i)) for i in range(1, 8)]
+    tiles_s = [Tile(tile=("s", i)) for i in range(1, 8)]
 
     return tiles_m + tiles_p + tiles_s
 
@@ -170,12 +302,12 @@ def create_tiles_randomly(tile_type=None):
 
 
 def get_tiles_specified_type(tile_type):
-    tiles = [Tile(tile_type, i) for i in range(1, 10)]
+    tiles = [Tile(tile=(tile_type, i)) for i in range(1, 10)]
 
     return tiles
 
 
 def get_tiles_specified_type_for_shuntsu(tile_type):
-    tiles = [Tile(tile_type, i) for i in range(1, 8)]
+    tiles = [Tile(tile=(tile_type, i)) for i in range(1, 8)]
 
     return tiles
