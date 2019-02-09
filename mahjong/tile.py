@@ -3,6 +3,7 @@ import copy
 import random
 
 import yaml
+from tqdm import tqdm
 
 from mahjong.exceptions import ArgumentError
 
@@ -113,7 +114,7 @@ class TilesHandler:
 
         around_tiles = self.__sort_tiles(around_tiles)
 
-        for tile in around_tiles:
+        for tile in tqdm(around_tiles):
             if self.__is_fifth_tile(tile):
                 continue
 
