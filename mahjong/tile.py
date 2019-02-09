@@ -114,7 +114,10 @@ class TilesHandler:
 
         around_tiles = self.__sort_tiles(around_tiles)
 
-        for tile in tqdm(around_tiles):
+        tiles_bar = tqdm(around_tiles)
+        tiles_bar.set_description("待ち牌特定中...")
+
+        for tile in tiles_bar:
             if self.__is_fifth_tile(tile):
                 continue
 
