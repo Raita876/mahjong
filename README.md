@@ -3,7 +3,9 @@ This package is Mahjong Library.
 
 # How to use
 
-### get_tiles_in_char
+### get_tiles
+
+handler = TilesHandler()    # random create
 
 handler_m = TilesHandler("①①①②③③④⑤⑥⑦⑧⑨⑨⑨")
 
@@ -11,17 +13,26 @@ handler_p = TilesHandler("一一一二三四五六七八九九九")
 
 handler_s = TilesHandler("１１１２３４５６７８９９９")
 
+handler_z = TilesHandler("東南南西西北北白白発発中中")
+
 print(handler_m.get_tiles_in_char())
 
 print(handler_p.get_tiles_in_char())
 
 print(handler_s.get_tiles_in_char())
 
+print(handler_z.get_tiles_in_char())
+
+> 一二三①②③⑦⑦１１２３３
+
 > ①①①②③③④⑤⑥⑦⑧⑨⑨⑨
 
 > 一一一二三四五六七八九九九
 
 > １１１２３４５６７８９９９
+
+> 東南南西西北北白白発発中中
+
 
 
 ### identify_target_tiles
