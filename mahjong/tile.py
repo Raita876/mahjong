@@ -3,13 +3,14 @@ import copy
 import random
 
 import yaml
+from tqdm import tqdm
 
 from mahjong.exceptions import ArgumentError
 
 
 class Tile:
     def __init__(self, tile=None):
-        if type(tile) is tuple:
+        if type(tile) is tuple or type(tile) is list:
             tile_tuple = tile
         elif type(tile) is str:
             tile_tuple = self.__to_tile_tuple(tile)
@@ -106,10 +107,14 @@ class TilesHandler:
 
         return tiles_in_char
 
-    def identify_target_tiles(self):
+    def identify_target_tiles(self, bar=False):
         target_tiles = []
 
-        around_tiles = self.__around_tiles()
+        around_tiles = self.__sort_tiles(self.__around_tiles())
+
+        if bar:
+            around_tiles = tqdm(around_tiles)
+            around_tiles.set_description("待ち牌特定中...")
 
         for tile in around_tiles:
             if self.__is_fifth_tile(tile):
@@ -171,8 +176,9 @@ class TilesHandler:
         kotsu_tiles = [items[0] for items in collections.Counter(tiles_in_char).items() if items[1] >= 3]
 
         for delete_tile in kotsu_tiles:
-            for i in range(3):
-                tiles_in_char.remove(delete_tile)
+            if not self.__is_irregular(tiles_in_char, delete_tile):
+                for i in range(3):
+                    tiles_in_char.remove(delete_tile)
 
         return tiles_in_char
 
@@ -204,6 +210,81 @@ class TilesHandler:
 
         return target_tiles_in_char
 
+    def __is_irregular(self, tiles_in_char, kotsu_tile):
+        tile = Tile(kotsu_tile)
+        if tile.num == 1 or tile.num == 9:
+            return False
+
+        if tile.tile_type == "z":
+            return False
+
+        if 2 < tile.num < 8:
+            tile_pre_1 = Tile(tile=(tile.tile_type, tile.num - 1))
+            tile_pre_2 = Tile(tile=(tile.tile_type, tile.num - 2))
+            tile_late_1 = Tile(tile=(tile.tile_type, tile.num + 1))
+            tile_late_2 = Tile(tile=(tile.tile_type, tile.num + 2))
+
+            tiles_in_char.count(tile_pre_1.char)
+
+            if tiles_in_char.count(tile_pre_1.char) >= 2 and tiles_in_char.count(
+                    tile_pre_2.char) >= 1 and tiles_in_char.count(tile_late_1.char) >= 2 and tiles_in_char.count(
+                tile_late_2.char) >= 1:
+                return True
+
+            if tiles_in_char.count(tile_pre_1.char) >= 1 and tiles_in_char.count(
+                    tile_pre_2.char) >= 1 and tiles_in_char.count(tile_late_1.char) >= 2 and tiles_in_char.count(
+                tile_late_2.char) >= 2:
+                return True
+
+            if tiles_in_char.count(tile_pre_1.char) >= 2 and tiles_in_char.count(
+                    tile_pre_2.char) >= 2 and tiles_in_char.count(tile_late_1.char) >= 1 and tiles_in_char.count(
+                tile_late_2.char) >= 1:
+                return True
+
+            if tiles_in_char.count(tile_pre_1.char) >= 3 and tiles_in_char.count(
+                    tile_pre_2.char) >= 1 and tiles_in_char.count(tile_late_1.char) >= 2:
+                return True
+
+            if tiles_in_char.count(tile_pre_1.char) >= 3 and tiles_in_char.count(
+                    tile_pre_2.char) >= 2 and tiles_in_char.count(tile_late_1.char) >= 1:
+                return True
+
+            if tiles_in_char.count(tile_late_1.char) >= 3 and tiles_in_char.count(
+                    tile_late_2.char) >= 1 and tiles_in_char.count(tile_pre_1.char) >= 2:
+                return True
+
+            if tiles_in_char.count(tile_late_1.char) >= 3 and tiles_in_char.count(
+                    tile_late_2.char) >= 2 and tiles_in_char.count(tile_pre_1.char) >= 1:
+                return True
+
+        elif tile.num == 2:
+            tile_pre_1 = Tile(tile=(tile.tile_type, tile.num - 1))
+            tile_late_1 = Tile(tile=(tile.tile_type, tile.num + 1))
+            tile_late_2 = Tile(tile=(tile.tile_type, tile.num + 2))
+
+            if tiles_in_char.count(tile_late_1.char) >= 3 and tiles_in_char.count(
+                    tile_late_2.char) >= 1 and tiles_in_char.count(tile_pre_1.char) >= 2:
+                return True
+
+            if tiles_in_char.count(tile_late_1.char) >= 3 and tiles_in_char.count(
+                    tile_late_2.char) >= 2 and tiles_in_char.count(tile_pre_1.char) >= 1:
+                return True
+
+        elif tile.num == 8:
+            tile_pre_1 = Tile(tile=(tile.tile_type, tile.num - 1))
+            tile_pre_2 = Tile(tile=(tile.tile_type, tile.num - 2))
+            tile_late_1 = Tile(tile=(tile.tile_type, tile.num + 1))
+
+            if tiles_in_char.count(tile_pre_1.char) >= 3 and tiles_in_char.count(
+                    tile_pre_2.char) >= 1 and tiles_in_char.count(tile_late_1.char) >= 2:
+                return True
+
+            if tiles_in_char.count(tile_pre_1.char) >= 3 and tiles_in_char.count(
+                    tile_pre_2.char) >= 2 and tiles_in_char.count(tile_late_1.char) >= 1:
+                return True
+
+        return False
+
 
 def create_tiles_tenpai(tile_type=None):
     tiles = mentsu(tile_type) + mentsu(tile_type) + mentsu(tile_type) + mentsu(tile_type) + janto(tile_type)
@@ -217,12 +298,9 @@ def create_tiles_tenpai(tile_type=None):
 
 
 def mentsu(tile_type=None):
-    mentsu_type_choices = ["shuntsu", "kotsu"]
-    mentsu_type = random.choice(mentsu_type_choices)
-
-    if mentsu_type == "shuntsu":
+    if random.randint(1, 10) >= 4:
         return shuntsu(tile_type)
-    elif mentsu_type == "kotsu":
+    else:
         return kotsu(tile_type)
 
 
