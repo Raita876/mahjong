@@ -40,8 +40,12 @@ class Tile:
         return char_dict[key]
 
     def __to_tile_tuple(self, tile_in_char):
-        tile_dict = self.__get_tile_num_yaml()[tile_in_char]
-        return tile_dict["type"], tile_dict["num"]
+        tile_dict = self.__get_tile_num_yaml()
+
+        if tile_in_char not in tile_dict:
+            raise ArgumentError("Args is not appropriate.")
+
+        return tile_dict[tile_in_char]["type"], tile_dict[tile_in_char]["num"]
 
     def __get_char_yaml(self):
         yaml_path = "./mahjong/config/char.yml"

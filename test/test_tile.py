@@ -37,6 +37,12 @@ def test_handler():
     assert handler.get_tiles_in_char() == "三四五⑤⑥⑦２３７８９南南"
 
 
+def test_handler_from_str():
+    handler = TilesHandler("四五②②⑥⑦⑧５５５発発発")
+
+    assert handler.get_tiles_in_char() == "四五②②⑥⑦⑧５５５発発発"
+
+
 def test_handler_create_tenpai():
     handler = TilesHandler()
 
