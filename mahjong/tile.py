@@ -112,7 +112,6 @@ class TilesHandler:
         around_tiles = self.__around_tiles()
 
         for tile in around_tiles:
-            # print(tile.char)
             if self.__is_fifth_tile(tile):
                 continue
 
@@ -162,13 +161,9 @@ class TilesHandler:
             if len(target_tiles_in_char) == 0:
                 return True
 
-            # print(target_tiles_in_char)
-
             target_tiles_in_char = self.__remove_shuntsu(target_tiles_in_char)
             if len(target_tiles_in_char) == 0:
                 return True
-
-            # print(target_tiles_in_char)
 
         return False
 
