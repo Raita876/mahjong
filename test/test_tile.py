@@ -22,7 +22,7 @@ def test_tile_char():
     tiles_yaml = load_tiles_yaml()
 
     for tile in tiles_yaml:
-        assert_tile = Tile(tile["tile_type"], tile["num"])
+        assert_tile = Tile(tile=(tile["tile_type"], tile["num"]))
 
         assert tile["char"] == assert_tile.char
 
@@ -30,11 +30,17 @@ def test_tile_char():
 def test_handler():
     tiles_yaml = load_tiles_yaml()
 
-    tiles = [Tile(tile["tile_type"], tile["num"]) for tile in tiles_yaml]
+    tiles = [Tile(tile=(tile["tile_type"], tile["num"])) for tile in tiles_yaml]
 
     handler = TilesHandler(tiles)
 
     assert handler.get_tiles_in_char() == "三四五⑤⑥⑦２３７８９南南"
+
+
+def test_handler_from_str():
+    handler = TilesHandler("四五②②⑥⑦⑧５５５発発発")
+
+    assert handler.get_tiles_in_char() == "四五②②⑥⑦⑧５５５発発発"
 
 
 def test_handler_create_tenpai():
@@ -60,7 +66,7 @@ def test_handler_list_empty():
 def test_handler_sort():
     tiles_yaml = load_tiles_yaml()
 
-    tiles = [Tile(tile["tile_type"], tile["num"]) for tile in tiles_yaml]
+    tiles = [Tile(tile=(tile["tile_type"], tile["num"])) for tile in tiles_yaml]
 
     random.shuffle(tiles)
 
@@ -74,11 +80,37 @@ def test_create_tiles_tenpai_miss_args():
         create_tiles_tenpai("d")
 
 
+def test_tile_args_is_tuple():
+    assert Tile(tile=("m", 3)).char == "三"
+
+
+def test_tile_args_is_str():
+    assert Tile(tile="九").tile_type == "m"
+    assert Tile(tile="７").num == 7
+
+
 def test_tile_miss_type():
     with pytest.raises(ArgumentError):
-        Tile("d", 7)
+        Tile(tile=("d", 7))
 
 
 def test_tile_miss_num():
     with pytest.raises(ArgumentError):
-        Tile("s", 10)
+        Tile(tile=("s", 10))
+
+
+def test_identify():
+    handler = TilesHandler("三四五⑤⑥⑦２３７８９南南")
+    target_tiles = handler.identify_target_tiles()
+
+    assert [tile.char for tile in target_tiles] == ["１", "４"]
+
+    handler = TilesHandler("１２３３４５５５７７７９９")
+    target_tiles = handler.identify_target_tiles()
+
+    assert [tile.char for tile in target_tiles] == ["２", "５", "９"]
+
+    handler = TilesHandler("１１２３３３３４４５６７８")
+    target_tiles = handler.identify_target_tiles()
+
+    assert [tile.char for tile in target_tiles] == ["１", "６", "９"]

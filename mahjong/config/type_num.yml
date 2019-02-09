@@ -1,0 +1,102 @@
+一:
+  type: "m"
+  num: 1
+二:
+  type: "m"
+  num: 2
+三:
+  type: "m"
+  num: 3
+四:
+  type: "m"
+  num: 4
+五:
+  type: "m"
+  num: 5
+六:
+  type: "m"
+  num: 6
+七:
+  type: "m"
+  num: 7
+八:
+  type: "m"
+  num: 8
+九:
+  type: "m"
+  num: 9
+①:
+  type: "p"
+  num: 1
+②:
+  type: "p"
+  num: 2
+③:
+  type: "p"
+  num: 3
+④:
+  type: "p"
+  num: 4
+⑤:
+  type: "p"
+  num: 5
+⑥:
+  type: "p"
+  num: 6
+⑦:
+  type: "p"
+  num: 7
+⑧:
+  type: "p"
+  num: 8
+⑨:
+  type: "p"
+  num: 9
+１:
+  type: "s"
+  num: 1
+２:
+  type: "s"
+  num: 2
+３:
+  type: "s"
+  num: 3
+４:
+  type: "s"
+  num: 4
+５:
+  type: "s"
+  num: 5
+６:
+  type: "s"
+  num: 6
+７:
+  type: "s"
+  num: 7
+８:
+  type: "s"
+  num: 8
+９:
+  type: "s"
+  num: 9
+東:
+  type: "z"
+  num: 1
+南:
+  type: "z"
+  num: 2
+西:
+  type: "z"
+  num: 3
+北:
+  type: "z"
+  num: 4
+白:
+  type: "z"
+  num: 5
+発:
+  type: "z"
+  num: 6
+中:
+  type: "z"
+  num: 7
