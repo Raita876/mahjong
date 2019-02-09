@@ -178,7 +178,8 @@ class TilesHandler:
         return tiles_in_char
 
     def __remove_shuntsu(self, tiles_in_char):
-        target_tiles_in_char = copy.deepcopy(tiles_in_char)
+        self.deepcopy = copy.deepcopy(tiles_in_char)
+        target_tiles_in_char = self.deepcopy
 
         while (True):
             tile = Tile(tile=target_tiles_in_char[0])
