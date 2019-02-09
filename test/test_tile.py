@@ -97,3 +97,20 @@ def test_tile_miss_type():
 def test_tile_miss_num():
     with pytest.raises(ArgumentError):
         Tile(tile=("s", 10))
+
+
+def test_identify():
+    handler = TilesHandler("三四五⑤⑥⑦２３７８９南南")
+    target_tiles = handler.identify_target_tiles()
+
+    assert [tile.char for tile in target_tiles] == ["１", "４"]
+
+    handler = TilesHandler("１２３３４５５５７７７９９")
+    target_tiles = handler.identify_target_tiles()
+
+    assert [tile.char for tile in target_tiles] == ["２", "５", "９"]
+
+    handler = TilesHandler("１１２３３３３４４５６７８")
+    target_tiles = handler.identify_target_tiles()
+
+    assert [tile.char for tile in target_tiles] == ["１", "６", "９"]
