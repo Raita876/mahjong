@@ -107,17 +107,16 @@ class TilesHandler:
 
         return tiles_in_char
 
-    def identify_target_tiles(self):
+    def identify_target_tiles(self, bar=False):
         target_tiles = []
 
-        around_tiles = self.__around_tiles()
+        around_tiles = self.__sort_tiles(self.__around_tiles())
 
-        around_tiles = self.__sort_tiles(around_tiles)
+        if bar:
+            around_tiles = tqdm(around_tiles)
+            around_tiles.set_description("待ち牌特定中...")
 
-        tiles_bar = tqdm(around_tiles)
-        tiles_bar.set_description("待ち牌特定中...")
-
-        for tile in tiles_bar:
+        for tile in around_tiles:
             if self.__is_fifth_tile(tile):
                 continue
 
