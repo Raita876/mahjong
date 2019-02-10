@@ -1,6 +1,7 @@
 import collections
 import copy
 import random
+import re
 
 import yaml
 from tqdm import tqdm
@@ -79,7 +80,11 @@ class TilesHandler:
         if tiles is None:
             self.tiles = create_tiles_tenpai()
         elif type(tiles) is str:
-            self.tiles = self.__init_tiles(self.__to_list_tiles_str(tiles))
+            if self.__is_mps(tiles):
+                self.tiles = self.__init_tiles(self.__convert_mps(tiles))
+            else:
+                self.tiles = self.__init_tiles(self.__to_list_tiles_str(tiles))
+
         else:
             self.tiles = self.__init_tiles(tiles)
 
@@ -98,6 +103,41 @@ class TilesHandler:
     def __sort_tiles(self, tiles):
         tiles.sort(key=lambda tile: (tile.tile_type, tile.num))
         return tiles
+
+    def __is_mps(self, tiles):
+        regex = r'.*m.*p.*s'
+        pattern = re.compile(regex)
+        matchObj = pattern.match(tiles)
+
+        if matchObj:
+            return True
+        else:
+            return False
+
+    def __convert_mps(self, tiles_mps):
+        tiles = []
+
+        tile_type = "m"
+
+        for c in list(tiles_mps):
+            if c != "m" and c != "p" and c != "s":
+                tiles.append(self.__create_tile(tile_type, c))
+            elif c == "m":
+                tile_type = "p"
+            elif c == "p":
+                tile_type = "s"
+            elif c == "s":
+                tile_type = "z"
+
+        return tiles
+
+    def __create_tile(self, tile_type, char):
+        if tile_type == "m" or tile_type == "p" or tile_type == "s":
+            return Tile(tile=[tile_type, int(char)])
+        if tile_type == "z":
+            return Tile(tile=char)
+        else:
+            raise ArgumentError("Tile-Type is not appropriate.")
 
     def get_tiles_in_char(self):
         tiles_in_char = ""
