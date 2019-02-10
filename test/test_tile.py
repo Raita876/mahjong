@@ -43,6 +43,12 @@ def test_handler_from_str():
     assert handler.get_tiles_in_char() == "四五②②⑥⑦⑧５５５発発発"
 
 
+def test_handler_mps():
+    handler = TilesHandler("12356m456p789s南南")
+
+    assert handler.get_tiles_in_char() == "一二三五六④⑤⑥７８９南南"
+
+
 def test_handler_create_tenpai():
     handler = TilesHandler()
 
@@ -99,43 +105,15 @@ def test_tile_miss_num():
         Tile(tile=("s", 10))
 
 
-def test_identify_1():
+def test_identify():
     handler = TilesHandler("三四五⑤⑥⑦２３７８９南南")
     target_tiles = handler.identify_target_tiles()
 
     assert [tile.char for tile in target_tiles] == ["１", "４"]
 
 
-def test_identify_2():
-    handler = TilesHandler("１２３３４５５５７７７９９")
-    target_tiles = handler.identify_target_tiles()
-
-    assert [tile.char for tile in target_tiles] == ["２", "５", "９"]
-
-
-def test_identify_3():
-    handler = TilesHandler("１１２３３３３４４５６７８")
-    target_tiles = handler.identify_target_tiles()
-
-    assert [tile.char for tile in target_tiles] == ["１", "６", "９"]
-
-
-def test_identify_irregular_1():
-    handler = TilesHandler("七七④⑤⑤⑤⑥⑥⑦⑦３３３")
-    target_tiles = handler.identify_target_tiles()
-
-    assert [tile.char for tile in target_tiles] == ["③", "⑥"]
-
-
-def test_identify_irregular_2():
+def test_identify_irregular():
     handler = TilesHandler("２２２３３３４４４５７８９")
     target_tiles = handler.identify_target_tiles()
 
     assert [tile.char for tile in target_tiles] == ["２", "３", "４", "５", "６"]
-
-
-def test_identify_irregular_3():
-    handler = TilesHandler("②③③④④④⑤⑤⑥２白白白")
-    target_tiles = handler.identify_target_tiles()
-
-    assert [tile.char for tile in target_tiles] == ["２"]
