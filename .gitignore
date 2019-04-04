@@ -1,5 +1,8 @@
 .pytest_cache/
+mahjong/__pycache__/
 
 .idea/
+
+.vscode/
 
 debug.py
