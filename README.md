@@ -37,3 +37,13 @@ print([tile.char for tile in target_tiles])
 ```
 ['１', '２', '３', '４', '５', '６', '７', '８', '９']
 ```
+
+```
+handler = TilesHandler("一二三①②③⑦⑦１２３３４")
+target_tiles = handler.identify_target_tiles()
+print([tile.char for tile in target_tiles])
+```
+
+```
+['２', '５']
+```
