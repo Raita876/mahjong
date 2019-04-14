@@ -1,6 +1,6 @@
 .pytest_cache/
-mahjong/__pycache__/
-test/__pycache__/
+mahjong/__pycache__/*
+test/__pycache__/*
 
 .idea/
 
