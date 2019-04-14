@@ -51,12 +51,14 @@ class Tile:
         return tile_dict[tile_in_char]["type"], tile_dict[tile_in_char]["num"]
 
     def __get_char_yaml(self):
-        yaml_path = os.path.abspath("./mahjong/config/char.yml")
+        yaml_path = os.path.dirname(
+            os.path.abspath(__file__)) + "/config/char.yml"
         f = open(yaml_path, "r")
         return yaml.load(f)
 
     def __get_tile_num_yaml(self):
-        yaml_path = os.path.abspath("./mahjong/config/type_num.yml")
+        yaml_path = os.path.dirname(os.path.abspath(
+            __file__)) + "/config/type_num.yml"
         f = open(yaml_path, "r")
         return yaml.load(f)
 
