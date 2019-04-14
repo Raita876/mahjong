@@ -1,6 +1,7 @@
 .pytest_cache/
 mahjong/__pycache__/*
 test/__pycache__/*
+mahjong.egg-info/
 
 .idea/
 
