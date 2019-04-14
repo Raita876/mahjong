@@ -54,13 +54,13 @@ class Tile:
         yaml_path = os.path.dirname(
             os.path.abspath(__file__)) + "/config/char.yml"
         f = open(yaml_path, "r")
-        return yaml.load(f)
+        return yaml.load(f, Loader=yaml.CLoader)
 
     def __get_tile_num_yaml(self):
         yaml_path = os.path.dirname(os.path.abspath(
             __file__)) + "/config/type_num.yml"
         f = open(yaml_path, "r")
-        return yaml.load(f)
+        return yaml.load(f, Loader=yaml.CLoader)
 
     def __is_appropriate_type(self, tile_type):
         if tile_type != "m" and tile_type != "p" and tile_type != "s" and tile_type != "z":
