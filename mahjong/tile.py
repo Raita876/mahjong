@@ -2,6 +2,7 @@ import collections
 import copy
 import random
 import re
+import os.path
 
 import yaml
 from tqdm import tqdm
@@ -50,18 +51,19 @@ class Tile:
         return tile_dict[tile_in_char]["type"], tile_dict[tile_in_char]["num"]
 
     def __get_char_yaml(self):
-        yaml_path = "./mahjong/config/char.yml"
+        yaml_path = os.path.abspath("./mahjong/config/char.yml")
         f = open(yaml_path, "r")
         return yaml.load(f)
 
     def __get_tile_num_yaml(self):
-        yaml_path = "./mahjong/config/type_num.yml"
+        yaml_path = os.path.abspath("./mahjong/config/type_num.yml")
         f = open(yaml_path, "r")
         return yaml.load(f)
 
     def __is_appropriate_type(self, tile_type):
         if tile_type != "m" and tile_type != "p" and tile_type != "s" and tile_type != "z":
-            raise ArgumentError("Tile-Type is not appropriate. must be 'm' or 'p' or 's' or 'z'.")
+            raise ArgumentError(
+                "Tile-Type is not appropriate. must be 'm' or 'p' or 's' or 'z'.")
 
     def __is_appropriate_num(self, tile_type, num):
         if tile_type == "z":
@@ -213,7 +215,8 @@ class TilesHandler:
         return False
 
     def __remove_kotsu(self, tiles_in_char):
-        kotsu_tiles = [items[0] for items in collections.Counter(tiles_in_char).items() if items[1] >= 3]
+        kotsu_tiles = [items[0] for items in collections.Counter(
+            tiles_in_char).items() if items[1] >= 3]
 
         for delete_tile in kotsu_tiles:
             if not self.__is_irregular(tiles_in_char, delete_tile):
@@ -267,18 +270,18 @@ class TilesHandler:
             tiles_in_char.count(tile_pre_1.char)
 
             if tiles_in_char.count(tile_pre_1.char) >= 2 and tiles_in_char.count(
-                    tile_pre_2.char) >= 1 and tiles_in_char.count(tile_late_1.char) >= 2 and tiles_in_char.count(
-                tile_late_2.char) >= 1:
+                tile_pre_2.char) >= 1 and tiles_in_char.count(tile_late_1.char) >= 2 and tiles_in_char.count(
+                    tile_late_2.char) >= 1:
                 return True
 
             if tiles_in_char.count(tile_pre_1.char) >= 1 and tiles_in_char.count(
-                    tile_pre_2.char) >= 1 and tiles_in_char.count(tile_late_1.char) >= 2 and tiles_in_char.count(
-                tile_late_2.char) >= 2:
+                tile_pre_2.char) >= 1 and tiles_in_char.count(tile_late_1.char) >= 2 and tiles_in_char.count(
+                    tile_late_2.char) >= 2:
                 return True
 
             if tiles_in_char.count(tile_pre_1.char) >= 2 and tiles_in_char.count(
-                    tile_pre_2.char) >= 2 and tiles_in_char.count(tile_late_1.char) >= 1 and tiles_in_char.count(
-                tile_late_2.char) >= 1:
+                tile_pre_2.char) >= 2 and tiles_in_char.count(tile_late_1.char) >= 1 and tiles_in_char.count(
+                    tile_late_2.char) >= 1:
                 return True
 
             if tiles_in_char.count(tile_pre_1.char) >= 3 and tiles_in_char.count(
@@ -327,7 +330,8 @@ class TilesHandler:
 
 
 def create_tiles_tenpai(tile_type=None):
-    tiles = mentsu(tile_type) + mentsu(tile_type) + mentsu(tile_type) + mentsu(tile_type) + janto(tile_type)
+    tiles = mentsu(tile_type) + mentsu(tile_type) + \
+        mentsu(tile_type) + mentsu(tile_type) + janto(tile_type)
 
     tiles = random.sample(tiles, 13)
 
@@ -350,7 +354,8 @@ def shuntsu(tile_type=None):
     elif tile_type == "m" or tile_type == "p" or tile_type == "s":
         tiles_all = get_tiles_specified_type_for_shuntsu(tile_type)
     else:
-        raise ArgumentError("Tile-Type is not appropriate. must be 'm' or 'p' or 's'.")
+        raise ArgumentError(
+            "Tile-Type is not appropriate. must be 'm' or 'p' or 's'.")
 
     selected_tile = random.choice(tiles_all)
 
@@ -363,7 +368,8 @@ def kotsu(tile_type=None):
     elif tile_type == "m" or tile_type == "p" or tile_type == "s" or tile_type == "z":
         tiles_all = get_tiles_specified_type(tile_type)
     else:
-        raise ArgumentError("Tile-Type is not appropriate. must be 'm' or 'p' or 's' or 'z'.")
+        raise ArgumentError(
+            "Tile-Type is not appropriate. must be 'm' or 'p' or 's' or 'z'.")
 
     selected_tile = random.choice(tiles_all)
 
@@ -376,7 +382,8 @@ def janto(tile_type=None):
     elif tile_type == "m" or tile_type == "p" or tile_type == "s" or tile_type == "z":
         tiles_all = get_tiles_specified_type(tile_type)
     else:
-        raise ArgumentError("Tile-Type is not appropriate. must be 'm' or 'p' or 's' or 'z'.")
+        raise ArgumentError(
+            "Tile-Type is not appropriate. must be 'm' or 'p' or 's' or 'z'.")
 
     selected_tile = random.choice(tiles_all)
 
