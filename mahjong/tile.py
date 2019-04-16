@@ -4,15 +4,8 @@ import random
 import re
 import os.path
 
-import yaml
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
-
-from tqdm import tqdm
-
 from mahjong.exceptions import ArgumentError
+from mahjong.config import CHAR, TYPE_NUM
 
 
 class Tile:
@@ -41,31 +34,25 @@ class Tile:
         return hash(self.char)
 
     def __set_char(self, tile_type, num):
-        char_dict = self.__get_char_yaml()["char"]
+        char_dict = self.__get_char()["char"]
 
         key = str(num) + tile_type
 
         return char_dict[key]
 
     def __to_tile_tuple(self, tile_in_char):
-        tile_dict = self.__get_tile_num_yaml()
+        tile_dict = self.__get_tile_num()
 
         if tile_in_char not in tile_dict:
             raise ArgumentError("Args is not appropriate.")
 
         return tile_dict[tile_in_char]["type"], tile_dict[tile_in_char]["num"]
 
-    def __get_char_yaml(self):
-        yaml_path = os.path.dirname(
-            os.path.abspath(__file__)) + "/config/char.yml"
-        f = open(yaml_path, "r")
-        return yaml.load(f, Loader=Loader)
+    def __get_char(self):
+        return CHAR
 
-    def __get_tile_num_yaml(self):
-        yaml_path = os.path.dirname(os.path.abspath(
-            __file__)) + "/config/type_num.yml"
-        f = open(yaml_path, "r")
-        return yaml.load(f, Loader=Loader)
+    def __get_tile_num(self):
+        return TYPE_NUM
 
     def __is_appropriate_type(self, tile_type):
         if tile_type != "m" and tile_type != "p" and tile_type != "s" and tile_type != "z":
@@ -156,14 +143,10 @@ class TilesHandler:
 
         return tiles_in_char
 
-    def identify_target_tiles(self, bar=False):
+    def identify_target_tiles(self):
         target_tiles = []
 
         around_tiles = self.__sort_tiles(self.__around_tiles())
-
-        if bar:
-            around_tiles = tqdm(around_tiles)
-            around_tiles.set_description("待ち牌特定中...")
 
         for tile in around_tiles:
             if self.__is_fifth_tile(tile):
