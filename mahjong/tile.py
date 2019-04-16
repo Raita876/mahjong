@@ -4,8 +4,6 @@ import random
 import re
 import os.path
 
-from tqdm import tqdm
-
 from mahjong.exceptions import ArgumentError
 from mahjong.config import CHAR, TYPE_NUM
 
@@ -145,14 +143,10 @@ class TilesHandler:
 
         return tiles_in_char
 
-    def identify_target_tiles(self, bar=False):
+    def identify_target_tiles(self):
         target_tiles = []
 
         around_tiles = self.__sort_tiles(self.__around_tiles())
-
-        if bar:
-            around_tiles = tqdm(around_tiles)
-            around_tiles.set_description("待ち牌特定中...")
 
         for tile in around_tiles:
             if self.__is_fifth_tile(tile):
