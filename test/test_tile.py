@@ -4,6 +4,10 @@ import random
 
 import pytest
 import yaml
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 
 from mahjong.exceptions import ArgumentError
 from mahjong.tile import Tile, TilesHandler, create_tiles_tenpai
@@ -13,7 +17,7 @@ def load_tiles_yaml():
     yaml_path = "./test/sample/tiles.yml"
     f = open(yaml_path, "r")
 
-    tiles_yaml = yaml.load(f)
+    tiles_yaml = yaml.load(f, Loader=Loader)
 
     return tiles_yaml
 
@@ -30,7 +34,8 @@ def test_tile_char():
 def test_handler():
     tiles_yaml = load_tiles_yaml()
 
-    tiles = [Tile(tile=(tile["tile_type"], tile["num"])) for tile in tiles_yaml]
+    tiles = [Tile(tile=(tile["tile_type"], tile["num"]))
+             for tile in tiles_yaml]
 
     handler = TilesHandler(tiles)
 
@@ -72,7 +77,8 @@ def test_handler_list_empty():
 def test_handler_sort():
     tiles_yaml = load_tiles_yaml()
 
-    tiles = [Tile(tile=(tile["tile_type"], tile["num"])) for tile in tiles_yaml]
+    tiles = [Tile(tile=(tile["tile_type"], tile["num"]))
+             for tile in tiles_yaml]
 
     random.shuffle(tiles)
 
