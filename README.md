@@ -1,5 +1,5 @@
 # Mahjong
-This package is Mahjong Library.
+This package is Mahjong Library!!!
 
 # How to use
 
